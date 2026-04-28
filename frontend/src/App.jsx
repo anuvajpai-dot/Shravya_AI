@@ -19,17 +19,21 @@ export default function App() {
   async function sendMessage(text) {
     if (!text.trim()) return
 
-    const userMsg = { role: 'user', content: text }
+    const userMsg = { role: 'user', content: text, timestamp: new Date() }
     const history = [...messages.filter((m) => m !== WELCOME), userMsg]
     setMessages((prev) => [...prev, userMsg])
     setLoading(true)
+
+    const start = performance.now()
 
     try {
       const res = await fetch('/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: history }),
+        body: JSON.stringify({ messages: history.map(({ role, content }) => ({ role, content })) }),
       })
+
+      const elapsed = ((performance.now() - start) / 1000).toFixed(2)
 
       if (!res.ok) {
         const err = await res.json()
@@ -37,11 +41,15 @@ export default function App() {
       }
 
       const data = await res.json()
-      setMessages((prev) => [...prev, { role: 'assistant', content: data.reply }])
-    } catch (err) {
       setMessages((prev) => [
         ...prev,
-        { role: 'assistant', content: `⚠️ Error: ${err.message}` },
+        { role: 'assistant', content: data.reply, elapsed, timestamp: new Date() },
+      ])
+    } catch (err) {
+      const elapsed = ((performance.now() - start) / 1000).toFixed(2)
+      setMessages((prev) => [
+        ...prev,
+        { role: 'assistant', content: `⚠️ Error: ${err.message}`, elapsed, timestamp: new Date() },
       ])
     } finally {
       setLoading(false)
@@ -72,7 +80,7 @@ export default function App() {
       {/* Chat area */}
       <main className="flex-1 overflow-y-auto chat-scroll px-4 py-4 space-y-3">
         {messages.map((msg, i) => (
-          <ChatMessage key={i} role={msg.role} content={msg.content} />
+          <ChatMessage key={i} role={msg.role} content={msg.content} elapsed={msg.elapsed} timestamp={msg.timestamp} />
         ))}
 
         {loading && (
