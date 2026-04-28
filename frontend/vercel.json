@@ -1,0 +1,16 @@
+{
+  "rewrites": [
+    {
+      "source": "/chat",
+      "destination": "https://api.pihudrive.lol/chat"
+    },
+    {
+      "source": "/health",
+      "destination": "https://api.pihudrive.lol/health"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
