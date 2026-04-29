@@ -1,40 +1,62 @@
+import ShravyaLogo from './ShravyaLogo'
+
+function renderContent(text) {
+  // Split out fenced code blocks first
+  const segments = text.split(/(```[\s\S]*?```)/g)
+  return segments.map((seg, i) => {
+    if (seg.startsWith('```')) {
+      const inner = seg.slice(3, -3)
+      // strip optional language tag on first line
+      const code = inner.replace(/^[a-zA-Z0-9+\-.]*\n/, '')
+      return (
+        <pre
+          key={i}
+          className="bg-[#0d0d0d] border border-white/10 rounded-xl px-4 py-3 my-3 overflow-x-auto text-xs font-mono text-gray-300 leading-relaxed"
+        >
+          <code>{code}</code>
+        </pre>
+      )
+    }
+    // Inline formatting
+    const html = seg
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/`([^`]+)`/g, '<code class="bg-white/10 px-1.5 py-0.5 rounded text-[0.8em] font-mono">$1</code>')
+    return <span key={i} dangerouslySetInnerHTML={{ __html: html }} />
+  })
+}
+
 export default function ChatMessage({ role, content, elapsed, timestamp }) {
   const isUser = role === 'user'
 
-  // Simple bold markdown rendering (**text**)
-  const rendered = content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-
   const timeLabel = timestamp
-    ? timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+    ? new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     : null
 
-  return (
-    <div className={`flex items-start gap-3 ${isUser ? 'flex-row-reverse' : ''}`}>
-      {/* Avatar */}
-      <div
-        className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0 ${
-          isUser ? 'bg-blue-600' : 'bg-violet-600'
-        }`}
-      >
-        {isUser ? 'U' : 'S'}
-      </div>
-
-      {/* Bubble + meta */}
-      <div className={`flex flex-col gap-1 max-w-[75%] ${isUser ? 'items-end' : 'items-start'}`}>
-        <div
-          className={`px-4 py-3 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${
-            isUser
-              ? 'bg-blue-600 text-white rounded-tr-sm'
-              : 'bg-gray-800 text-gray-100 rounded-tl-sm'
-          }`}
-          dangerouslySetInnerHTML={{ __html: rendered }}
-        />
-        {/* Timestamp + response time */}
-        <div className="flex items-center gap-2 text-[10px] text-gray-500 px-1">
-          {timeLabel && <span>{timeLabel}</span>}
-          {!isUser && elapsed && (
-            <span className="text-violet-400 font-medium">{elapsed}s</span>
+  if (isUser) {
+    return (
+      <div className="flex justify-end">
+        <div className="max-w-[80%]">
+          <div className="bg-[#2f2f2f] text-gray-100 px-4 py-3 rounded-2xl rounded-br-sm text-sm leading-relaxed whitespace-pre-wrap">
+            {content}
+          </div>
+          {timeLabel && (
+            <p className="text-[10px] text-gray-600 mt-1 text-right px-1">{timeLabel}</p>
           )}
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex gap-3 items-start">
+      <div className="shrink-0 mt-0.5">
+        <ShravyaLogo size={28} />
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="text-sm leading-relaxed text-gray-100">{renderContent(content)}</div>
+        <div className="flex items-center gap-2 mt-1.5">
+          {timeLabel && <span className="text-[10px] text-gray-600">{timeLabel}</span>}
+          {elapsed && <span className="text-[10px] text-violet-500 font-medium">{elapsed}s</span>}
         </div>
       </div>
     </div>
