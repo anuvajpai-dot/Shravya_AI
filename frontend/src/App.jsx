@@ -28,6 +28,7 @@ export default function App() {
   const [conversations, setConversations] = useState(() => loadConversations())
   const [activeId, setActiveId] = useState(null)
   const [loading, setLoading] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const bottomRef = useRef(null)
 
   const activeConv = conversations.find((c) => c.id === activeId) || null
@@ -153,26 +154,56 @@ export default function App() {
         onNew={startNewChat}
         onSelect={setActiveId}
         onDelete={deleteConversation}
+        open={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
       />
 
       {/* Main content */}
       <div className="flex flex-col flex-1 min-w-0">
+
+        {/* Mobile top bar */}
+        <div className="flex items-center gap-3 px-4 py-3 border-b border-white/5 md:hidden">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="text-gray-400 hover:text-white transition-colors p-1"
+            aria-label="Open menu"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <line x1="3" y1="12" x2="21" y2="12" />
+              <line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+          </button>
+          <ShravyaLogo size={22} />
+          <span className="font-semibold text-sm text-white">Shravya AI</span>
+          <button
+            onClick={startNewChat}
+            className="ml-auto text-gray-400 hover:text-white transition-colors p-1"
+            aria-label="New chat"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+          </button>
+        </div>
+
         {/* Messages or empty state */}
         <main
           className={`flex-1 overflow-y-auto chat-scroll ${
-            messages.length === 0 ? 'flex flex-col items-center justify-center' : 'py-8'
+            messages.length === 0 ? 'flex flex-col items-center justify-center' : 'py-6 md:py-8'
           }`}
         >
           {messages.length === 0 ? (
             <div className="flex flex-col items-center gap-4 px-4 text-center select-none">
-              <ShravyaLogo size={60} />
-              <h1 className="text-2xl font-semibold text-gray-200">How can I help you today?</h1>
-              <p className="text-sm text-gray-500 max-w-sm">
+              <ShravyaLogo size={52} />
+              <h1 className="text-xl md:text-2xl font-semibold text-gray-200">How can I help you today?</h1>
+              <p className="text-sm text-gray-500 max-w-xs md:max-w-sm">
                 Ask me anything — code, debugging, explanations, or just a chat.
               </p>
             </div>
           ) : (
-            <div className="max-w-3xl mx-auto w-full px-4 space-y-8">
+            <div className="max-w-3xl mx-auto w-full px-3 md:px-4 space-y-6 md:space-y-8">
               {messages.map((msg, i) => (
                 <ChatMessage key={i} {...msg} />
               ))}
@@ -180,7 +211,7 @@ export default function App() {
               {loading && (
                 <div className="flex gap-3 items-start">
                   <div className="shrink-0 mt-0.5">
-                    <ShravyaLogo size={28} />
+                    <ShravyaLogo size={26} />
                   </div>
                   <div className="flex items-center gap-1.5 pt-2.5">
                     <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce [animation-delay:0ms]" />
@@ -196,10 +227,10 @@ export default function App() {
         </main>
 
         {/* Input bar */}
-        <div className="px-4 pb-5 pt-2">
+        <div className="px-3 md:px-4 pb-4 md:pb-5 pt-2">
           <div className="max-w-3xl mx-auto w-full">
             <InputBar onSend={sendMessage} disabled={loading} />
-            <p className="text-center text-[11px] text-gray-600 mt-2">
+            <p className="text-center text-[10px] md:text-[11px] text-gray-600 mt-2">
               Shravya AI · Qwen 2.5 1.5B · responses may be incorrect
             </p>
           </div>

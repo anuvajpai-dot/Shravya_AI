@@ -1,8 +1,22 @@
 import ShravyaLogo from './ShravyaLogo'
 
-export default function Sidebar({ conversations, activeId, onNew, onSelect, onDelete }) {
+export default function Sidebar({ conversations, activeId, onNew, onSelect, onDelete, open, onClose }) {
   return (
-    <div className="w-64 shrink-0 bg-[#171717] flex flex-col h-full border-r border-white/5">
+    <>
+      {/* Mobile backdrop */}
+      {open && (
+        <div
+          className="fixed inset-0 bg-black/60 z-20 md:hidden"
+          onClick={onClose}
+        />
+      )}
+
+      <div className={`
+        fixed md:relative inset-y-0 left-0 z-30
+        w-72 md:w-64 shrink-0 bg-[#171717] flex flex-col h-full border-r border-white/5
+        transform transition-transform duration-200 ease-in-out
+        ${open ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+      `}>
       {/* Logo + title */}
       <div className="px-3 pt-4 pb-2">
         <div className="flex items-center gap-2.5 px-2 py-2">
@@ -34,7 +48,7 @@ export default function Sidebar({ conversations, activeId, onNew, onSelect, onDe
         {conversations.map((conv) => (
           <div
             key={conv.id}
-            onClick={() => onSelect(conv.id)}
+            onClick={() => { onSelect(conv.id); onClose() }}
             className={`group flex items-center gap-2 px-3 py-2.5 rounded-lg cursor-pointer text-sm transition-colors ${
               conv.id === activeId
                 ? 'bg-white/10 text-white'
@@ -80,5 +94,6 @@ export default function Sidebar({ conversations, activeId, onNew, onSelect, onDe
         </div>
       </div>
     </div>
+    </>
   )
 }

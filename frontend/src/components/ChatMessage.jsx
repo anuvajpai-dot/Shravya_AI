@@ -35,7 +35,7 @@ export default function ChatMessage({ role, content, elapsed, timestamp }) {
   if (isUser) {
     return (
       <div className="flex justify-end">
-        <div className="max-w-[80%]">
+        <div className="max-w-[88%] md:max-w-[80%]">
           <div className="bg-[#2f2f2f] text-gray-100 px-4 py-3 rounded-2xl rounded-br-sm text-sm leading-relaxed whitespace-pre-wrap">
             {content}
           </div>
