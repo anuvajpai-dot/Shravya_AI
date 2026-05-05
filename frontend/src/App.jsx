@@ -188,53 +188,62 @@ export default function App() {
           </button>
         </div>
 
-        {/* Messages or empty state */}
-        <main
-          className={`flex-1 overflow-y-auto chat-scroll ${
-            messages.length === 0 ? 'flex flex-col items-center justify-center' : 'py-6 md:py-8'
-          }`}
-        >
-          {messages.length === 0 ? (
-            <div className="flex flex-col items-center gap-4 px-4 text-center select-none">
-              <ShravyaLogo size={52} />
-              <h1 className="text-xl md:text-2xl font-semibold text-gray-200">How can I help you today?</h1>
-              <p className="text-sm text-gray-500 max-w-xs md:max-w-sm">
-                Ask me anything — code, debugging, explanations, or just a chat.
-              </p>
+        {messages.length === 0 ? (
+          /* ── Empty state: input centred in the middle of the screen ── */
+          <div className="flex-1 flex flex-col items-center justify-center px-3 md:px-4 pb-4 md:pb-5">
+            <div className="w-full max-w-2xl flex flex-col items-center gap-6">
+              <div className="flex flex-col items-center gap-4 text-center select-none">
+                <ShravyaLogo size={56} />
+                <h1 className="text-2xl md:text-3xl font-semibold text-gray-200">How can I help you today?</h1>
+                <p className="text-sm text-gray-500 max-w-xs md:max-w-sm">
+                  Ask me anything — code, debugging, explanations, or just a chat.
+                </p>
+              </div>
+              <div className="w-full">
+                <InputBar onSend={sendMessage} disabled={loading} />
+                <p className="text-center text-[10px] md:text-[11px] text-gray-600 mt-2">
+                  Shravya AI · Qwen 2.5 1.5B · responses may be incorrect
+                </p>
+              </div>
             </div>
-          ) : (
-            <div className="max-w-3xl mx-auto w-full px-3 md:px-4 space-y-6 md:space-y-8">
-              {messages.map((msg, i) => (
-                <ChatMessage key={i} {...msg} />
-              ))}
-
-              {loading && (
-                <div className="flex gap-3 items-start">
-                  <div className="shrink-0 mt-0.5">
-                    <ShravyaLogo size={26} />
-                  </div>
-                  <div className="flex items-center gap-1.5 pt-2.5">
-                    <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce [animation-delay:0ms]" />
-                    <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce [animation-delay:150ms]" />
-                    <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce [animation-delay:300ms]" />
-                  </div>
-                </div>
-              )}
-
-              <div ref={bottomRef} />
-            </div>
-          )}
-        </main>
-
-        {/* Input bar */}
-        <div className="px-3 md:px-4 pb-4 md:pb-5 pt-2">
-          <div className="max-w-3xl mx-auto w-full">
-            <InputBar onSend={sendMessage} disabled={loading} />
-            <p className="text-center text-[10px] md:text-[11px] text-gray-600 mt-2">
-              Shravya AI · Qwen 2.5 1.5B · responses may be incorrect
-            </p>
           </div>
-        </div>
+        ) : (
+          /* ── Chat view: messages + input pinned to bottom ── */
+          <>
+            <main className="flex-1 overflow-y-auto chat-scroll py-6 md:py-8">
+              <div className="max-w-3xl mx-auto w-full px-3 md:px-4 space-y-6 md:space-y-8">
+                {messages.map((msg, i) => (
+                  <ChatMessage key={i} {...msg} />
+                ))}
+
+                {loading && (
+                  <div className="flex gap-3 items-start">
+                    <div className="shrink-0 mt-0.5">
+                      <ShravyaLogo size={26} />
+                    </div>
+                    <div className="flex items-center gap-1.5 pt-2.5">
+                      <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce [animation-delay:0ms]" />
+                      <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce [animation-delay:150ms]" />
+                      <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce [animation-delay:300ms]" />
+                    </div>
+                  </div>
+                )}
+
+                <div ref={bottomRef} />
+              </div>
+            </main>
+
+            {/* Input bar pinned to bottom */}
+            <div className="px-3 md:px-4 pb-4 md:pb-5 pt-2">
+              <div className="max-w-3xl mx-auto w-full">
+                <InputBar onSend={sendMessage} disabled={loading} />
+                <p className="text-center text-[10px] md:text-[11px] text-gray-600 mt-2">
+                  Shravya AI · Qwen 2.5 1.5B · responses may be incorrect
+                </p>
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   )
