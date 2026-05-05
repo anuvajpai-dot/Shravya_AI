@@ -55,8 +55,9 @@ export default function App() {
     if (activeId === id) setActiveId(null)
   }
 
-  async function sendMessage(text) {
-    if (!text.trim() || loading) return
+  async function sendMessage(text, image = null) {
+    if (!text.trim() && !image) return
+    if (loading) return
 
     // Create conversation on first message if none active
     let convId = activeId
@@ -71,7 +72,7 @@ export default function App() {
       currentMessages = conversations.find((c) => c.id === convId)?.messages || []
     }
 
-    const userMsg = { role: 'user', content: text, timestamp: new Date().toISOString() }
+    const userMsg = { role: 'user', content: text, image: image || undefined, timestamp: new Date().toISOString() }
     const allMessages = [...currentMessages, userMsg]
 
     // Set title from first user message
@@ -96,7 +97,7 @@ export default function App() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          messages: allMessages.map(({ role, content }) => ({ role, content })),
+          messages: allMessages.map(({ role, content, image }) => ({ role, content, ...(image ? { image } : {}) })),
         }),
       })
 

@@ -25,7 +25,7 @@ function renderContent(text) {
   })
 }
 
-export default function ChatMessage({ role, content, elapsed, timestamp }) {
+export default function ChatMessage({ role, content, image, elapsed, timestamp }) {
   const isUser = role === 'user'
 
   const timeLabel = timestamp
@@ -36,9 +36,16 @@ export default function ChatMessage({ role, content, elapsed, timestamp }) {
     return (
       <div className="flex justify-end">
         <div className="max-w-[88%] md:max-w-[80%]">
-          <div className="bg-[#2f2f2f] text-gray-100 px-4 py-3 rounded-2xl rounded-br-sm text-sm leading-relaxed whitespace-pre-wrap">
-            {content}
-          </div>
+          {image && (
+            <div className="mb-2 flex justify-end">
+              <img src={image} alt="attachment" className="max-w-[220px] max-h-[220px] rounded-xl border border-white/10 object-cover" />
+            </div>
+          )}
+          {content && (
+            <div className="bg-[#2f2f2f] text-gray-100 px-4 py-3 rounded-2xl rounded-br-sm text-sm leading-relaxed whitespace-pre-wrap">
+              {content}
+            </div>
+          )}
           {timeLabel && (
             <p className="text-[10px] text-gray-600 mt-1 text-right px-1">{timeLabel}</p>
           )}
