@@ -176,7 +176,7 @@ async def chat_ollama(request: ChatRequest, system_prompt: str = SYSTEM_PROMPT) 
             msg_dict["images"] = [raw_b64]
         messages.append(msg_dict)
 
-    payload = {"model": MODEL_NAME, "messages": messages, "stream": False}
+    payload = {"model": MODEL_NAME, "messages": messages, "stream": False, "options": {"num_predict": 400}}
 
     try:
         async with httpx.AsyncClient(timeout=300.0) as client:

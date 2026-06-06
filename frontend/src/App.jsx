@@ -4,7 +4,9 @@ import ChatMessage from './components/ChatMessage'
 import InputBar from './components/InputBar'
 import ShravyaLogo from './components/ShravyaLogo'
 
-const STORAGE_KEY = 'shravya_conversations'
+const API_BASE = import.meta.env.VITE_API_URL || ''
+
+
 
 function loadConversations() {
   try {
@@ -108,7 +110,7 @@ export default function App() {
     const start = performance.now()
 
     try {
-      const res = await fetch('/chat', {
+      const res = await fetch(`${API_BASE}/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
