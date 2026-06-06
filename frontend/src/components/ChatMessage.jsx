@@ -20,7 +20,7 @@ function renderContent(text) {
     // Inline formatting
     const html = seg
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/`([^`]+)`/g, '<code class="bg-white/10 px-1.5 py-0.5 rounded text-[0.8em] font-mono">$1</code>')
+      .replace(/`([^`]+)`/g, '<code class="bg-gray-200 dark:bg-white/10 px-1.5 py-0.5 rounded text-[0.8em] font-mono text-gray-800 dark:text-gray-100">$1</code>')
     return <span key={i} dangerouslySetInnerHTML={{ __html: html }} />
   })
 }
@@ -38,11 +38,11 @@ export default function ChatMessage({ role, content, image, elapsed, timestamp }
         <div className="max-w-[88%] md:max-w-[80%]">
           {image && (
             <div className="mb-2 flex justify-end">
-              <img src={image} alt="attachment" className="max-w-[220px] max-h-[220px] rounded-xl border border-white/10 object-cover" />
+              <img src={image} alt="attachment" className="max-w-[220px] max-h-[220px] rounded-xl border border-gray-200 dark:border-white/10 object-cover" />
             </div>
           )}
           {content && (
-            <div className="bg-[#2f2f2f] text-gray-100 px-4 py-3 rounded-2xl rounded-br-sm text-sm leading-relaxed whitespace-pre-wrap">
+            <div className="bg-gray-100 dark:bg-[#2f2f2f] text-gray-800 dark:text-gray-100 px-4 py-3 rounded-2xl rounded-br-sm text-sm leading-relaxed whitespace-pre-wrap">
               {content}
             </div>
           )}
@@ -60,7 +60,7 @@ export default function ChatMessage({ role, content, image, elapsed, timestamp }
         <ShravyaLogo size={28} />
       </div>
       <div className="flex-1 min-w-0">
-        <div className="text-sm leading-relaxed text-gray-100">{renderContent(content)}</div>
+        <div className="text-sm leading-relaxed text-gray-800 dark:text-gray-100">{renderContent(content)}</div>
         <div className="flex items-center gap-2 mt-1.5">
           {timeLabel && <span className="text-[10px] text-gray-600">{timeLabel}</span>}
           {elapsed && <span className="text-[10px] text-violet-500 font-medium">{elapsed}s</span>}

@@ -37,7 +37,7 @@ export default function InputBar({ onSend, disabled }) {
           <img src={image} alt="attachment" className="w-full h-full object-cover rounded-xl border border-white/10" />
           <button
             onClick={() => setImage(null)}
-            className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-[#1a1a1a] border border-white/20 rounded-full flex items-center justify-center text-gray-400 hover:text-white text-xs"
+            className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-200 dark:border-white/20 rounded-full flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-xs"
             aria-label="Remove image"
           >
             ✕
@@ -45,12 +45,12 @@ export default function InputBar({ onSend, disabled }) {
         </div>
       )}
 
-      <div className="relative flex items-end bg-[#2f2f2f] rounded-2xl border border-white/10 focus-within:border-violet-500/50 transition-colors shadow-lg">
+      <div className="relative flex items-end bg-white dark:bg-[#2f2f2f] rounded-2xl border border-gray-200 dark:border-white/10 focus-within:border-violet-500/50 transition-colors shadow-lg">
         {/* Image attach button */}
         <button
           onClick={() => fileRef.current?.click()}
           disabled={disabled}
-          className="shrink-0 ml-3 mb-3.5 text-gray-500 hover:text-gray-300 disabled:opacity-40 transition-colors"
+          className="shrink-0 ml-3 mb-3.5 text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 disabled:opacity-40 transition-colors"
           aria-label="Attach image"
         >
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -62,7 +62,7 @@ export default function InputBar({ onSend, disabled }) {
         <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
 
         <textarea
-          className="flex-1 resize-none bg-transparent text-gray-100 placeholder-gray-500 px-3 py-4 pr-14 text-sm outline-none min-h-[56px] max-h-48 leading-relaxed"
+          className="flex-1 resize-none bg-transparent text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 px-3 py-4 pr-14 text-sm outline-none min-h-[56px] max-h-48 leading-relaxed"
           placeholder="Message Shravya AI…"
           rows={1}
           value={text}
