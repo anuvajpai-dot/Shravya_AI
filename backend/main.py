@@ -160,9 +160,27 @@ async def chat(request: ChatRequest):
             )
 
     if has_image and GEMINI_API_KEY:
-        return await chat_gemini(request, system_prompt)
+        try:
+            return await chat_gemini(request, system_prompt)
+        except HTTPException as e:
+            if e.status_code in (429, 503):
+                # Rate-limited — Ollama is text-only, so strip image and notify user
+                text = last_msg.content.strip() if last_msg.content.strip() else "(no text)"
+                stripped = [
+                    Message(role=m.role, content=m.content)
+                    for m in request.messages
+                ]
+                note = (
+                    "⚠️ Image processing is temporarily unavailable (Gemini rate limit). "
+                    "I can only process your text right now.\n\n"
+                )
+                stripped[-1] = Message(role="user", content=note + text)
+                stripped_req = ChatRequest(messages=stripped)
+                return await chat_ollama(stripped_req, system_prompt)
+            raise
+    elif has_image and not GEMINI_API_KEY:
+        raise HTTPException(status_code=501, detail="Image support requires GEMINI_API_KEY to be configured.")
     else:
-        # Ollama handles all text queries and vision (if a vision model is loaded)
         return await chat_ollama(request, system_prompt)
 
 
@@ -225,4 +243,8 @@ async def chat_gemini(request: ChatRequest, system_prompt: str = SYSTEM_PROMPT) 
         reply = await asyncio.to_thread(_run_gemini)
         return ChatResponse(reply=reply)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Gemini error: {str(e)}")
+        err = str(e)
+        # 429 Resource Exhausted = rate limit; raise as 429 so caller can fall back
+        if "429" in err or "Resource has been exhausted" in err or "RESOURCE_EXHAUSTED" in err:
+            raise HTTPException(status_code=429, detail="Gemini rate limit reached — falling back to Ollama")
+        raise HTTPException(status_code=500, detail=f"Gemini error: {err}")
