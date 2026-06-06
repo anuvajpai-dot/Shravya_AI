@@ -15,7 +15,7 @@ app = FastAPI(title="Shravya AI Lite")
 
 ALLOWED_ORIGINS = os.getenv(
     "ALLOWED_ORIGINS",
-    "http://localhost:3000,https://shravya.pihudrive.lol"
+    "http://localhost:3000,https://shravya.pihudrive.lol,https://shravya-ai.vercel.app"
 ).split(",")
 
 app.add_middleware(
