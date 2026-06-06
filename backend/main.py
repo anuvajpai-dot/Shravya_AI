@@ -6,8 +6,10 @@ import httpx
 import os
 import base64
 import asyncio
+from datetime import datetime, timezone
+import psutil
 import google.generativeai as genai
-from duckduckgo_search import DDGS
+from ddgs import DDGS
 
 app = FastAPI(title="Shravya AI Lite")
 
@@ -57,6 +59,37 @@ class ChatResponse(BaseModel):
     reply: str
 
 
+def get_system_info() -> str:
+    """Return a compact snapshot of current system resources."""
+    cpu = psutil.cpu_percent(interval=0.2)
+    freq = psutil.cpu_freq()
+    freq_str = f"{freq.current:.0f} MHz" if freq else "unknown"
+    mem = psutil.virtual_memory()
+    swap = psutil.swap_memory()
+    disk = psutil.disk_usage('/')
+    uptime_secs = int(datetime.now().timestamp() - psutil.boot_time())
+    h, rem = divmod(uptime_secs, 3600)
+    m, s = divmod(rem, 60)
+    uptime_str = f"{h}h {m}m {s}s"
+    temps = ""
+    try:
+        t = psutil.sensors_temperatures()
+        if t:
+            first = next(iter(t.values()))
+            if first:
+                temps = f"  CPU temp: {first[0].current:.1f}°C\n"
+    except Exception:
+        pass
+    return (
+        f"  CPU usage: {cpu}% @ {freq_str}\n"
+        f"  RAM: {mem.used/1024**3:.1f} GB used / {mem.total/1024**3:.1f} GB total ({mem.percent}%)\n"
+        f"  Swap: {swap.used/1024**3:.1f} GB / {swap.total/1024**3:.1f} GB\n"
+        f"  Disk (/): {disk.used/1024**3:.1f} GB used / {disk.total/1024**3:.1f} GB total ({disk.percent}%)\n"
+        + temps +
+        f"  System uptime: {uptime_str}"
+    )
+
+
 async def web_search(query: str, max_results: int = 4) -> str:
     """Search DuckDuckGo and return formatted snippet results as LLM context."""
     try:
@@ -93,14 +126,19 @@ async def chat(request: ChatRequest):
     last_msg = request.messages[-1] if request.messages else None
     has_image = last_msg and last_msg.image
 
-    # Augment system prompt with live web search context for non-trivial queries
-    system_prompt = SYSTEM_PROMPT
+    # Always inject current datetime and live system resources
+    now_utc = datetime.now(timezone.utc)
+    datetime_context = (
+        f"Current date/time: {now_utc.strftime('%A, %B %d, %Y %H:%M:%S UTC')} "
+        f"(CEST=UTC+2: {(now_utc.astimezone()).strftime('%H:%M')} if in Central Europe)"
+    )
+    system_info = get_system_info()
+    system_prompt = SYSTEM_PROMPT + f"\n\n[System Info]\n{datetime_context}\n{system_info}"
     if last_msg and last_msg.content and len(last_msg.content.split()) >= 3:
         search_results = await web_search(last_msg.content)
         if search_results:
-            system_prompt = (
-                SYSTEM_PROMPT
-                + "\n\n[Live Web Search Results — use these for accurate, up-to-date answers]\n"
+            system_prompt += (
+                "\n\n[Live Web Search Results — use these for accurate, up-to-date answers]\n"
                 + search_results
             )
 
