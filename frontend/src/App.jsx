@@ -6,7 +6,7 @@ import ShravyaLogo from './components/ShravyaLogo'
 
 const API_BASE = import.meta.env.VITE_API_URL || ''
 
-
+const STORAGE_KEY = 'shravya_conversations'
 
 function loadConversations() {
   try {
