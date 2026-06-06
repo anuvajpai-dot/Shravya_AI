@@ -121,6 +121,23 @@ def health():
     return {"status": "ok"}
 
 
+SEARCH_TRIGGERS = (
+    "latest", "current", "today", "news", "price", "stock", "weather",
+    "who is", "what is", "when did", "when is", "where is", "how much",
+    "score", "result", "release", "update", "version", "announced",
+    "happened", "trending", "recent", "now", "live",
+)
+
+
+def needs_web_search(text: str) -> bool:
+    lower = text.lower()
+    # Skip for system/resource queries — already answered by injected system info
+    skip_patterns = ("cpu", "ram", "memory", "disk", "uptime", "system", "server")
+    if any(p in lower for p in skip_patterns):
+        return False
+    return any(t in lower for t in SEARCH_TRIGGERS)
+
+
 @app.post("/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):
     last_msg = request.messages[-1] if request.messages else None
@@ -132,9 +149,9 @@ async def chat(request: ChatRequest):
         f"Current date/time: {now_utc.strftime('%A, %B %d, %Y %H:%M:%S UTC')} "
         f"(CEST=UTC+2: {(now_utc.astimezone()).strftime('%H:%M')} if in Central Europe)"
     )
-    system_info = get_system_info()
+    system_info = await asyncio.to_thread(get_system_info)
     system_prompt = SYSTEM_PROMPT + f"\n\n[System Info]\n{datetime_context}\n{system_info}"
-    if last_msg and last_msg.content and len(last_msg.content.split()) >= 3:
+    if last_msg and last_msg.content and needs_web_search(last_msg.content):
         search_results = await web_search(last_msg.content)
         if search_results:
             system_prompt += (
