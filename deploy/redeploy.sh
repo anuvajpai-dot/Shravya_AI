@@ -16,6 +16,7 @@ docker run -d \
   -p 127.0.0.1:8000:8000 \
   -e OLLAMA_URL=http://host-gateway:11434/api/chat \
   -e ALLOWED_ORIGINS=https://pihu.drive.lol \
+  -e TAVILY_API_KEY=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 \
   --add-host=host-gateway:host-gateway \
   shravya-backend
 

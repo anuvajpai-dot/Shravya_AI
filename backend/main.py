@@ -9,7 +9,7 @@ import asyncio
 from datetime import datetime, timezone
 import psutil
 import google.generativeai as genai
-from ddgs import DDGS
+from tavily import AsyncTavilyClient
 
 app = FastAPI(title="Shravya AI Lite")
 
@@ -31,6 +31,7 @@ MODEL_NAME = os.getenv("MODEL_NAME", "qwen2.5:1.5b")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 if GEMINI_API_KEY:
     genai.configure(api_key=GEMINI_API_KEY)
+TAVILY_API_KEY = os.getenv("TAVILY_API_KEY", "")
 
 SYSTEM_PROMPT = """You are Shravya AI Lite, a helpful lightweight assistant.
 
@@ -91,20 +92,23 @@ def get_system_info() -> str:
 
 
 async def web_search(query: str, max_results: int = 4) -> str:
-    """Search DuckDuckGo and return formatted snippet results as LLM context."""
+    """Search via Tavily and return formatted snippet results as LLM context."""
+    if not TAVILY_API_KEY:
+        return ""
     try:
-        def _search():
-            with DDGS() as ddgs:
-                return list(ddgs.text(query, max_results=max_results))
-
-        results = await asyncio.wait_for(asyncio.to_thread(_search), timeout=8.0)
+        client = AsyncTavilyClient(api_key=TAVILY_API_KEY)
+        response = await asyncio.wait_for(
+            client.search(query, max_results=max_results, search_depth="basic"),
+            timeout=10.0,
+        )
+        results = response.get("results", [])
         if not results:
             return ""
         parts = []
         for r in results:
             title = r.get("title", "")
-            body = r.get("body", "")
-            href = r.get("href", "")
+            body = r.get("content", "")
+            href = r.get("url", "")
             parts.append(f"[{title}]\n{body}\nSource: {href}")
         return "\n---\n".join(parts)
     except Exception:
