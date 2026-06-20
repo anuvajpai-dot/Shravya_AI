@@ -3,3 +3,6 @@ backend/venv/
 frontend/node_modules/
 __pycache__/
 *.pyc
+.vercel
+.env*.local
+manage.sh

@@ -44,7 +44,7 @@ nginx -t && systemctl reload nginx
 
 echo "==> Building and running FastAPI backend"
 cd /opt
-git clone https://github.com/YOUR_GITHUB_USERNAME/Shravya_AI.git || true
+git clone https://github.com/anuvajpai-dot/Shravya_AI.git || true
 cd Shravya_AI/backend
 
 docker build -t shravya-backend .
@@ -55,6 +55,7 @@ docker run -d \
   -p 127.0.0.1:8000:8000 \
   -e OLLAMA_URL=http://host-gateway:11434/api/chat \
   -e ALLOWED_ORIGINS=https://pihu.drive.lol \
+  -e TAVILY_API_KEY="$TAVILY_API_KEY" \
   --add-host=host-gateway:host-gateway \
   shravya-backend
 
